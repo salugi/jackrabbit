@@ -16,7 +16,7 @@ export class HTMLDocument {
        return new DOMParser().parseFromString(this.body, 'text/html');
     }
 
-    public get_links():Array<string>{
+    public links():Array<string>{
         const document: any = this.get_document();
         let link_array:Array<any> = document.querySelectorAll('a');
         //@ts-ignore
@@ -34,7 +34,7 @@ export class HTMLDocument {
         return links;
     }
 
-    public get_domain_links():Array<string>{
+    public domain_links():Array<string>{
         const document: any = this.get_document();
         let link_array:Array<any> = document.querySelectorAll('a');
         //@ts-ignore
@@ -53,8 +53,27 @@ export class HTMLDocument {
         }
         return links;
     }
+    public non_domain_links():Array<string>{
+        const document: any = this.get_document();
+        let link_array:Array<any> = document.querySelectorAll('a');
+        //@ts-ignore
+        let links:Array<string> = [];
+        for(let i =0; i <link_array.length;i++){
+            if(link_array[i].attributes.href.length >0){
+                try{
+                    let url = new URL(link_array[i].attributes.href);
+                    if(!this.is_domain(url.href)){
+                        links.push(url.href)
+                    }
+                }catch{
+                    links.push(this.parse_link(link_array[i].attributes.href))
+                }
+            }
+        }
+        return links;
+    }
 
-    public get_curated_links(regex_string:any):Array<string>{
+    public curated_links(regex_string:any):Array<string>{
         let regex = new RegExp(regex_string)
         const document: any = this.get_document();
         let link_array:Array<any> = document.querySelectorAll('a');
