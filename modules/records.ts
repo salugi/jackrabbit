@@ -53,6 +53,31 @@ export class HTMLDocument {
         }
         return links;
     }
+
+    public get_curated_links(regex_string:any):Array<string>{
+        let regex = new RegExp(regex_string)
+        const document: any = this.get_document();
+        let link_array:Array<any> = document.querySelectorAll('a');
+        //@ts-ignore
+        let links:Array<string> = [];
+        for(let i =0; i <link_array.length;i++){
+            if(link_array[i].attributes.href.length >0){
+                try{
+                    let url = new URL(link_array[i].attributes.href);
+                    if(regex.test(url.href)){
+                        links.push(url.href)
+                    }
+                }catch{
+                    let link = this.parse_link(link_array[i].attributes.href)
+                    if(regex.test(link)){
+                        links.push(link)
+                    }
+                }
+            }
+        }
+        return links;
+    }
+
     private parse_link(link:string):string{
            let base = new URL(this.url);
             if(link.substr(0,1).match("/")){

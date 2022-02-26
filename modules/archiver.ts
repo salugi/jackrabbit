@@ -48,3 +48,34 @@ export async function archive_crawl(link:string,crawl_limit:number):Promise<Arra
         resolve(return_array)
     })
 }
+
+export async function curated_crawl(link:string,crawl_limit:number, regex:string):Promise<Array<HTMLDocument>> {
+    return new Promise(async (resolve) =>{
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+        let return_array:Array<HTMLDocument> = [];
+        let links_to_crawl = [link];
+
+        for(let i = 0; i < links_to_crawl.length;i++){
+            await page.goto(link);
+            //Uint8 array
+            let screenshot = await page.screenshot();
+            //string
+            // @ts-ignore
+            const text = await page.evaluate(() => document.querySelector('*').outerHTML);
+            let record = new HTMLDocument(link,screenshot,text);
+            let domain_links = record.get_curated_links(regex);
+            for(let j =0; j < domain_links.length;j++){
+                if(links_to_crawl.length < crawl_limit){
+                    links_to_crawl.push(domain_links[j]);
+                }
+            }
+            return_array.push(record)
+        }
+
+
+        await browser.close();
+        resolve(return_array)
+    })
+}
